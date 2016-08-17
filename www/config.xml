@@ -11,6 +11,7 @@
     <gap:plugin name="org.apache.cordova.core.network-information" />
     <gap:plugin name="org.apache.cordova.core.dialogs" />
     <gap:plugin name="org.apache.cordova.core.inappbrowser" />
+    <gap:plugin name="org.apache.cordova.file" />
 
     <preference name="permissions" value="none" />
     <preference name="phonegap-version" value="3.0.0" />
