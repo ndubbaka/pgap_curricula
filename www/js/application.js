@@ -1,5 +1,8 @@
 var Application = {
    initApplication: function () {
+	   console.log("initApplication");
+	   console.log(cordova.file);
+	   //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
       $(document)
          .on('pageinit', '#add-feed-page', function () {
             Application.initAddFeedPage();
@@ -19,11 +22,42 @@ var Application = {
          });
       Application.openLinksInApp();
    },
+   gotFS: function (fileSystem) {
+	   console.log("gotFS");
+       fileSystem.root.getFile("readme.txt", {create: true, exclusive: false}, Application.gotFileEntry, Application.fail);
+       console.log("after gotFS");
+   },
+   gotFileEntry: function (fileEntry) {
+	   console.log("gotFileEntry");
+       fileEntry.createWriter(Application.gotFileWriter, Application.fail);
+   },
+   gotFileWriter: function (writer) {
+       writer.onwriteend = function(evt) {
+           console.log("contents of file now 'some sample text'");
+           writer.truncate(11);  
+           writer.onwriteend = function(evt) {
+               console.log("contents of file now 'some sample'");
+               writer.seek(4);
+               writer.write(" different text");
+               writer.onwriteend = function(evt){
+                   console.log("contents of file now 'some different text'");
+               }
+           };
+       };
+       writer.write("some sample text");
+   },
+   fail: function (error) {
+       console.log(error.code);
+   },
    initAddFeedPage: function () {
       $('#add-feed-form').submit(function (event) {
          event.preventDefault();
          var feedName = $('#feed-name').val().trim();
          var feedUrl = $('#feed-url').val().trim();
+         /*
+          * Download Categories JSON API
+          */
+         window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
          if (feedName === '') {
             navigator.notification.alert('Name field is required and cannot be empty', function () {
             }, 'Error');
