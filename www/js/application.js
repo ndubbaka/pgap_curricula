@@ -1,14 +1,15 @@
 var Application = {
   initApplication: function() {
     console.log("initApplication");
-    console.log(cordova.file);
+    //console.log(cordova.file);
     //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
     $(document)
       .on('pageinit', '#add-feed-page', function() {
         Application.initAddFeedPage();
       })
       .on('pageinit', '#list-feeds-page', function() {
-        Application.initListFeedPage();
+    	var categParent = this.getAttribute('data-url').replace(/(.*?)parent=/g, '');
+        Application.initListFeedPage(categParent);
       })
       .on('pageinit', '#show-feed-page', function() {
         var url = this.getAttribute('data-url').replace(/(.*?)url=/g, '');
@@ -75,6 +76,54 @@ var Application = {
       navigator.notification.alert("ok, in theory i worked");
     }, Application.fail);
   },
+  utilCategProcess: function (key,value) {
+	    var $feedsList = $('#feeds-list');
+	    //console.log(key + " : "+value);
+	    var htmlItems = '';
+	    htmlItems += '<li><a href="list-feeds.html?parent=' + key + '">' + key + '</a></li>';
+	    $feedsList.append(htmlItems);
+  },
+  utilTraverse: function (o, func) {
+    for (var i in o) {
+    	func.apply(this,[i,o[i]]);
+        if (o[i] !== null && typeof(o[i])=="object") {
+            //going on step down in the object tree!!
+        	Application.utilTraverse(o[i],func);
+        }
+    }
+  },
+  utilCategListProcess: function (o, categParent) {
+	//console.log("utilTraverse");
+    for (var i in o) {
+    	console.log("i: "+i);
+    	if(i == categParent){
+    		console.log("matched: "+categParent);
+    		Application.utilCategParentProcess(o[i]);
+    	}else if (o[i] !== null && typeof(o[i])=="object") {
+            //going on step down in the object tree!!
+        	Application.utilCategListProcess(o[i], categParent);
+        }
+    }
+  },
+  utilCategParentProcess: function (subTree) {
+	    var $feedsList = $('#feeds-list');
+	    console.log("inner html: "+$feedsList.html());
+	    //console.log(key + " : "+value);
+	    var htmlItems = '';
+	    //$feedsList.empty();
+	    console.log("inner html1: "+$feedsList.html());
+	    for (var i in subTree) {
+	    	console.log("listing: "+i);
+	    	htmlItems += '<li><a href="list-feeds.html?parent=' + i + '">' + i + '</a></li>';
+	    }
+	    console.log(htmlItems);
+	    console.log($feedsList);
+	    console.log("inner html2: "+$feedsList.html());
+	    //$feedsList.html(htmlItems);
+	    //$feedsList.listview('refresh');
+	    $feedsList.append(htmlItems).listview('refresh');
+	    //$feedsList.append(htmlItems);
+  },
   initAddFeedPage: function() {
     $('#add-feed-form').submit(function(event) {
       event.preventDefault();
@@ -96,6 +145,10 @@ var Application = {
           console.log(decoded);
 
           console.log(JSON.parse(decoded));
+          /*var categoriesObj = JSON.parse(decoded);
+          Application.utilTraverse(categoriesObj, Application.utilCategProcess);*/
+      
+          //window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) { // For local chrome browser testing
           window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dir) {
             console.log("got main dir", dir);
             navigator.notification.alert("got main dir" + JSON.stringify(dir));
@@ -108,7 +161,6 @@ var Application = {
               Application.writeLog(decoded);
             });
           });
-
         }
       });
       /*
@@ -154,23 +206,48 @@ var Application = {
       return false;
     });
   },
-  initListFeedPage: function() {
+  initListFeedPage: function(categParent) {
+	  console.log("parent: " + categParent);
+	  if(categParent == "/list-feeds.html"){
+	  categParent = "ssc";
+  		}
     var $feedsList = $('#feeds-list');
+    // If local testing
+    $.ajaxSetup({
+        cache: false
+      });
+      var api_url = "http://opencurricula.technikh.com/api/v1/categories/";
+      console.log("test " + api_url);
+      $.ajax({
+        url: api_url,
+        success: function(result) {
+          console.log(result);
+          var decoded = $('<div/>').html(result).text();
+          var categoriesObj = JSON.parse(decoded);
+          console.log(categoriesObj);
+          Application.utilCategListProcess(categoriesObj, categParent);
+          //$feedsList.listview('refresh');
+        }
+      });
     /*
      * Read local Categories.json file
      * If it doesn't exist download if connected to internet
      */
-    navigator.notification.alert("got the file" + JSON.stringify(logOb));
+    /*navigator.notification.alert("got the file" + JSON.stringify(logOb));
     logOb.file(function(file) {
       var reader = new FileReader();
 
       reader.onloadend = function(e) {
         console.log(this.result);
         navigator.notification.alert("Reading: " + this.result);
+        
+        var categoriesObj = JSON.parse(this.result);
+        Application.utilTraverse(categoriesObj, Application.utilCategProcess);
+        $feedsList.append(htmlItems).listview('refresh');
       };
 
       reader.readAsText(file);
-    }, Application.fail);
+    }, Application.fail);*/
     /*
     var items = Feed.getFeeds();
     var htmlItems = '';
@@ -272,9 +349,13 @@ var Application = {
     return true;
   },
   updateIcons: function() {
+	  console.log("in updateIcons");
     var $buttons = $('a[data-icon], button[data-icon]');
     var isMobileWidth = ($(window).width() <= 480);
     isMobileWidth ? $buttons.attr('data-iconpos', 'notext') : $buttons.removeAttr('data-iconpos');
+  },
+  mypagechange: function() {
+	console.log("in mypagechange");
   },
   openLinksInApp: function() {
     $(document).on('click', 'a[target=_blank]', function(event) {

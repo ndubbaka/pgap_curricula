@@ -13,6 +13,7 @@
       <script>
          $(document)
                  .on('pagebeforecreate', Application.updateIcons)
+                 .on('pagechange', Application.mypagechange)
                  .on('deviceready', Application.initApplication);
       </script>
    </head>
