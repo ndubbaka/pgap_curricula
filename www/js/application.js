@@ -64,7 +64,8 @@ var Application = {
 	        
 	        fileWriter.seek(fileWriter.length);
 	        navigator.notification.alert("After file writer seek");
-	        var blob = new Blob([log], {type:'text/plain'});
+	        //var blob = new Blob([log], {type:'text/plain'});
+	        var blob = "eschool";
 	        navigator.notification.alert("blob " + blob);
 	        fileWriter.write(blob);
 	        console.log("ok, in theory i worked");
@@ -81,15 +82,16 @@ var Application = {
           */
          window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
              console.log("got main dir",dir);
-             navigator.notification.alert("got main dir" + dir);
-             dir.getFile("log.txt", {create:true}, function(file) {
+             navigator.notification.alert("got main dir" + JSON.stringify(dir));
+             dir.getFile("eschool.txt", {create:true}, function(file) {
                  console.log("got the file", file);
-                 navigator.notification.alert("got the file" + file);
+                 navigator.notification.alert("got the file" + JSON.stringify(file));
                  logOb = file;
                  Application.writeLog("App started");          
              });
          });
          //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
+         return false;
          if (feedName === '') {
             navigator.notification.alert('Name field is required and cannot be empty', function () {
             }, 'Error');
