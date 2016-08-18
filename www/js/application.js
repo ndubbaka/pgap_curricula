@@ -80,7 +80,7 @@ var Application = {
          /*
           * Download Categories JSON API
           */
-         window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
+         window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dir) {
              console.log("got main dir",dir);
              navigator.notification.alert("got main dir" + JSON.stringify(dir));
              dir.getFile("eschool.txt", {create:true}, function(file) {
