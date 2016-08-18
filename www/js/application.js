@@ -80,6 +80,38 @@ var Application = {
          /*
           * Download Categories JSON API
           */
+         $.ajaxSetup({ cache: false });
+         var api_url = "http://opencurricula.technikh.com/api/v1/categories/";
+         console.log("test "+api_url);
+         $.ajax({
+        	 url: api_url,
+        	 success: function(result){
+        	 console.log(result);
+        	 var decoded = $('<div/>').html(result).text();
+        	 console.log(decoded);
+        	 
+        	 console.log(JSON.parse(decoded));
+        	 window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dir) {
+                 console.log("got main dir",dir);
+                 navigator.notification.alert("got main dir" + JSON.stringify(dir));
+                 dir.getFile("categories.json", {create:true}, function(file) {
+                     console.log("got the file", file);
+                     navigator.notification.alert("got the file" + JSON.stringify(file));
+                     logOb = file;
+                     Application.writeLog(decoded);          
+                 });
+             });
+        	 
+         }});/*
+         $.getJSON(api_url, function(data)
+         {
+             // process the data
+        	 console.log(data);
+        	 navigator.notification.alert("Data: " + JSON.stringify(data));
+             $.ajaxSetup({ cache: true });
+         });
+         */
+         /*
          window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dir) {
              console.log("got main dir",dir);
              navigator.notification.alert("got main dir" + JSON.stringify(dir));
@@ -89,7 +121,7 @@ var Application = {
                  logOb = file;
                  Application.writeLog("App started");          
              });
-         });
+         });*/
          //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
          return false;
          if (feedName === '') {
@@ -118,6 +150,22 @@ var Application = {
    },
    initListFeedPage: function () {
       var $feedsList = $('#feeds-list');
+      /*
+       * Read local Categories.json file
+       * If it doesn't exist download if connected to internet
+       */
+      navigator.notification.alert("got the file" + JSON.stringify(logOb));
+      logOb.file(function(file) {
+          var reader = new FileReader();
+
+          reader.onloadend = function(e) {
+              console.log(this.result);
+              navigator.notification.alert("Reading: " + this.result);
+          };
+
+          reader.readAsText(file);
+      }, Application.fail);
+      /*
       var items = Feed.getFeeds();
       var htmlItems = '';
 
@@ -126,7 +174,7 @@ var Application = {
       for (var i = 0; i < items.length; i++) {
          htmlItems += '<li><a href="show-feed.html?url=' + items[i].url + '">' + items[i].name + '</a></li>';
       }
-      $feedsList.append(htmlItems).listview('refresh');
+      $feedsList.append(htmlItems).listview('refresh');*/
    },
    initShowFeedPage: function (url) {
       var step = 10;
