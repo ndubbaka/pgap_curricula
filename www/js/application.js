@@ -24,23 +24,28 @@ var Application = {
    },
    gotFS: function (fileSystem) {
 	   console.log("gotFS");
+	   navigator.notification.alert('gotFS');
        fileSystem.root.getFile("readme.txt", {create: true, exclusive: false}, Application.gotFileEntry, Application.fail);
        console.log("after gotFS");
    },
    gotFileEntry: function (fileEntry) {
 	   console.log("gotFileEntry");
+	   navigator.notification.alert('gotFileEntry');
        fileEntry.createWriter(Application.gotFileWriter, Application.fail);
    },
    gotFileWriter: function (writer) {
        writer.onwriteend = function(evt) {
            console.log("contents of file now 'some sample text'");
+           navigator.notification.alert('contents of file now some sample text');
            writer.truncate(11);  
            writer.onwriteend = function(evt) {
                console.log("contents of file now 'some sample'");
+               navigator.notification.alert('contents of file now some sample');
                writer.seek(4);
                writer.write(" different text");
                writer.onwriteend = function(evt){
                    console.log("contents of file now 'some different text'");
+                   navigator.notification.alert('contents of file now some different text');
                }
            };
        };
@@ -48,6 +53,7 @@ var Application = {
    },
    fail: function (error) {
        console.log(error.code);
+       navigator.notification.alert('error: '+error.code);
    },
    initAddFeedPage: function () {
       $('#add-feed-form').submit(function (event) {
