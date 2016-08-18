@@ -60,15 +60,15 @@ var Application = {
   },
   writeLog: function(str) {
     if (!logOb) return;
-    var log = str + " [" + (new Date()) + "]\n";
-    console.log("going to log " + log);
-    navigator.notification.alert("going to log " + log);
+    //var log = str + " [" + (new Date()) + "]\n";
+    console.log("going to log " + str);
+    navigator.notification.alert("going to log " + str);
     logOb.createWriter(function(fileWriter) {
 
       fileWriter.seek(fileWriter.length);
       navigator.notification.alert("After file writer seek");
       //var blob = new Blob([log], {type:'text/plain'});
-      var blob = "eschool";
+      var blob = str;
       navigator.notification.alert("blob " + blob);
       fileWriter.write(blob);
       console.log("ok, in theory i worked");
