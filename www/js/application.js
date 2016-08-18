@@ -55,6 +55,21 @@ var Application = {
        console.log(error.code);
        navigator.notification.alert('error: '+error.code);
    },
+   writeLog: function (str) {
+	    if(!logOb) return;
+	    var log = str + " [" + (new Date()) + "]\n";
+	    console.log("going to log "+log);
+	    navigator.notification.alert("going to log " + log);
+	    logOb.createWriter(function(fileWriter) {
+	        
+	        fileWriter.seek(fileWriter.length);
+	        
+	        var blob = new Blob([log], {type:'text/plain'});
+	        fileWriter.write(blob);
+	        console.log("ok, in theory i worked");
+	        navigator.notification.alert("ok, in theory i worked");
+	    }, fail);
+	},
    initAddFeedPage: function () {
       $('#add-feed-form').submit(function (event) {
          event.preventDefault();
@@ -63,7 +78,17 @@ var Application = {
          /*
           * Download Categories JSON API
           */
-         window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
+         window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
+             console.log("got main dir",dir);
+             navigator.notification.alert("got main dir" + dir);
+             dir.getFile("log.txt", {create:true}, function(file) {
+                 console.log("got the file", file);
+                 navigator.notification.alert("got the file" + file);
+                 logOb = file;
+                 Application.writeLog("App started");          
+             });
+         });
+         //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
          if (feedName === '') {
             navigator.notification.alert('Name field is required and cannot be empty', function () {
             }, 'Error');
