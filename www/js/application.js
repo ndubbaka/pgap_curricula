@@ -63,12 +63,13 @@ var Application = {
 	    logOb.createWriter(function(fileWriter) {
 	        
 	        fileWriter.seek(fileWriter.length);
-	        
+	        navigator.notification.alert("After file writer seek");
 	        var blob = new Blob([log], {type:'text/plain'});
+	        navigator.notification.alert("blob " + blob);
 	        fileWriter.write(blob);
 	        console.log("ok, in theory i worked");
 	        navigator.notification.alert("ok, in theory i worked");
-	    }, fail);
+	    }, Application.fail);
 	},
    initAddFeedPage: function () {
       $('#add-feed-form').submit(function (event) {
