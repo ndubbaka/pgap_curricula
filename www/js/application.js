@@ -98,15 +98,16 @@ var Application = {
     	console.log("i: "+i);
     	if(i == categParent){
     		console.log("matched: "+categParent);
-    		Application.utilCategParentProcess(o[i]);
+    		Application.utilCategParentProcess(o[i], categParent);
     	}else if (o[i] !== null && typeof(o[i])=="object") {
             //going on step down in the object tree!!
         	Application.utilCategListProcess(o[i], categParent);
         }
     }
   },
-  utilCategParentProcess: function (subTree) {
-	    var $feedsList = $('#feeds-list');
+  utilCategParentProcess: function (subTree, categParent) {
+	    //var $feedsList = $('#feeds-list');
+	    var $feedsList = $('#feeds-list-'+categParent);
 	    console.log("inner html: "+$feedsList.html());
 	    //console.log(key + " : "+value);
 	    var htmlItems = '';
@@ -121,7 +122,10 @@ var Application = {
 	    console.log("inner html2: "+$feedsList.html());
 	    //$feedsList.html(htmlItems);
 	    //$feedsList.listview('refresh');
+	    //$feedsList.append(htmlItems);
+	    //alert("pause");
 	    $feedsList.append(htmlItems).listview('refresh');
+	    console.log("inner html3: "+$feedsList.html());
 	    //$feedsList.append(htmlItems);
   },
   initAddFeedPage: function() {
@@ -211,7 +215,11 @@ var Application = {
 	  if(categParent == "/list-feeds.html"){
 	  categParent = "ssc";
   		}
-    var $feedsList = $('#feeds-list');
+    // change ID to be dynamic
+    $('#feeds-list').attr("id","feeds-list-"+categParent);
+    var $feedsList = $('#feeds-list-'+categParent);
+    //var htmlItems = '<li>my test</li>';
+    //$feedsList.append(htmlItems);
     // If local testing
     $.ajaxSetup({
         cache: false
