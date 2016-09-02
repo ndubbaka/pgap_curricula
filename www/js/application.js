@@ -216,11 +216,11 @@ var Application = {
 		  // Contains list-feeds.html.
 	  categParent = "ssc";
   		}
-	  navigator.notification.alert("before changing ID " + categParent);
+	  //navigator.notification.alert("before changing ID " + categParent);
     // change ID to be dynamic
     $('#feeds-list').attr("id","feeds-list-"+categParent);
     var $feedsList = $('#feeds-list-'+categParent);
-    navigator.notification.alert("after changing ID ");
+    //navigator.notification.alert("after changing ID ");
     //var htmlItems = '<li>my test</li>';
     //$feedsList.append(htmlItems);
     // If local testing
@@ -229,16 +229,16 @@ var Application = {
       });
       var api_url = "http://opencurricula.technikh.com/api/v1/categories/";
       console.log("test " + api_url);
-      navigator.notification.alert("before calling API  AJAX ");
+      //navigator.notification.alert("before calling API  AJAX ");
       $.ajax({
         url: api_url,
         success: function(result) {
           console.log(result);
-          navigator.notification.alert("downloaded API success" + JSON.stringify(result));
+          //navigator.notification.alert("downloaded API success" + JSON.stringify(result));
           var decoded = $('<div/>').html(result).text();
           var categoriesObj = JSON.parse(decoded);
           console.log(categoriesObj);
-          navigator.notification.alert("categoriesObj" + JSON.stringify(categoriesObj));
+          //navigator.notification.alert("categoriesObj" + JSON.stringify(categoriesObj));
           Application.utilCategListProcess(categoriesObj, categParent);
           //$feedsList.listview('refresh');
         }
