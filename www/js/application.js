@@ -212,7 +212,8 @@ var Application = {
   },
   initListFeedPage: function(categParent) {
 	  console.log("parent: " + categParent);
-	  if(categParent == "/list-feeds.html"){
+	  if(categParent.indexOf("list-feeds.html") !== -1){
+		  // Contains list-feeds.html.
 	  categParent = "ssc";
   		}
 	  navigator.notification.alert("before changing ID " + categParent);
