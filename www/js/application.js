@@ -1,6 +1,37 @@
 var Application = {
   initApplication: function() {
     console.log("initApplication");
+    $("#browseBtn").click(function(){
+        //check if last selected folder was set
+        if (typeof lastFolderSelected == 'undefined')
+            lastFolderSelected = null;
+
+        //create file chooser dialog parameters
+        file_Browser_params = {
+            directory_browser : true, //this is file browser. Default is false
+
+            new_file_btn : false, //show new file button. Default is true
+
+            new_folder_btn : false, //shoe new folder button. Default is true
+
+            initial_folder : lastFolderSelected, //initial folder when dialog is displayed
+
+            //callback function when file is selected
+            on_file_select : function(fileEntry) {
+                return false; //close dialog when any file is selected (tapped)
+            },
+
+            //callback function when folder is selected
+            on_folder_select : function(dirEntry) {
+                //don't do anything
+            },
+
+            //callback function when OK button is clicked
+            on_ok : function (dirEntry) {
+                //save the last folder path
+                lastFolderSelected = dirEntry;
+            }
+    };
     //console.log(cordova.file);
     //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
     $(document)
