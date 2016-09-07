@@ -69,6 +69,11 @@ var Application = {
 		    	// Get only directories entries[i].isDirectory = true
 		    	if(entries[i].isDirectory == true){
 		    		navigator.notification.alert('name: ' + entries[i].name + ' fullPath: ' + entries[i].fullPath);
+		    		// Get a directory reader
+		    		var directoryReader = entries[i].createReader();
+		    		navigator.notification.alert('directoryReader ' + JSON.stringify(directoryReader));
+		    		// Get a list of all the entries in the directory
+		    		directoryReader.readEntries(Application.gotCacheList, Application.fail);
 		    	}
 		    	console.log(entries[i]);
 		    }
