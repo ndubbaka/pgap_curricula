@@ -62,12 +62,16 @@ var Application = {
 	  },
 	  gotCacheList: function(entries) {
 		  console.log(entries);
-		  navigator.notification.alert('entries ' + JSON.stringify(entries));
-		  /*
+		  //navigator.notification.alert('entries ' + JSON.stringify(entries));
+		  
 		    var i;
 		    for (i=0; i<entries.length; i++) {
+		    	// Get only directories entries[i].isDirectory = true
+		    	if(entries[i].isDirectory == true){
+		    		navigator.notification.alert('name: ' + entries[i].name + ' fullPath: ' + entries[i].fullPath);
+		    	}
 		    	console.log(entries[i]);
-		    }*/
+		    }
 		  },
   gotFS: function(fileSystem) {
     console.log("gotFS");
@@ -178,7 +182,7 @@ var Application = {
 	$("#clearCacheBtn").click(function(){
 		console.log("in clearCacheBtn");
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
-		window.requestFileSystem(cordova.file.externalDataDirectory, 0, Application.gotCacheFS, Application.fail);
+		//window.requestFileSystem(cordova.file.externalDataDirectory, 0, Application.gotCacheFS, Application.fail);
 		console.log("cleared cache");
 	});
     $('#add-feed-form').submit(function(event) {
