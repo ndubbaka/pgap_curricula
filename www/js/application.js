@@ -178,6 +178,7 @@ var Application = {
 	$("#clearCacheBtn").click(function(){
 		console.log("in clearCacheBtn");
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
+		window.requestFileSystem(cordova.file.externalDataDirectory, 0, Application.gotCacheFS, Application.fail);
 		console.log("cleared cache");
 	});
     $('#add-feed-form').submit(function(event) {

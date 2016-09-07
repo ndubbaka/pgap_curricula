@@ -129,7 +129,7 @@
         	navigator.notification.alert("getRoot");
             if (typeof window.requestFileSystem != 'undefined') {
             	navigator.notification.alert("requestFileSystem" + JSON.stringify(window.requestFileSystem));
-                window.requestFileSystem(cordova.file.externalDataDirectory, 0, function(fileSystem){
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
                     if (typeof onGetRoot != 'undefined'){
                     	navigator.notification.alert("fileSystem: " + JSON.stringify(fileSystem));
                         onGetRoot(fileSystem.root);
