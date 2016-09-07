@@ -83,7 +83,7 @@
                     return;
                 currEntry.getDirectory(fileName,{create:false},function(){
                     alert("Folder already exists");
-                }, 
+                },
                 function(){
                     currEntry.getDirectory(fileName,{create:true}, function(){
                         //refresh current folder
@@ -126,10 +126,14 @@
 
         function getRoot(onGetRoot)
         {       
+        	navigator.notification.alert("getRoot");
             if (typeof window.requestFileSystem != 'undefined') {
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
-                    if (typeof onGetRoot != 'undefined')
+            	navigator.notification.alert("requestFileSystem" + JSON.stringify(window.requestFileSystem));
+                window.requestFileSystem(cordova.file.externalDataDirectory, 0, function(fileSystem){
+                    if (typeof onGetRoot != 'undefined'){
+                    	navigator.notification.alert("fileSystem: " + JSON.stringify(fileSystem));
                         onGetRoot(fileSystem.root);
+                    }
                 }, function(){
                     log("Error accessing local file system");
                 });
