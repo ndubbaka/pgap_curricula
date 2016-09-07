@@ -1,7 +1,7 @@
 var Application = {
   initApplication: function() {
     console.log("initApplication");
-    $("#browseBtn").click(function(){
+    /*$("#browseBtn").click(function(){
         //check if last selected folder was set
         if (typeof lastFolderSelected == 'undefined')
             lastFolderSelected = null;
@@ -31,7 +31,7 @@ var Application = {
                 //save the last folder path
                 lastFolderSelected = dirEntry;
             }
-    };
+    },*/
     //console.log(cordova.file);
     //window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotFS, Application.fail);
     $(document)
@@ -54,6 +54,21 @@ var Application = {
       });
     Application.openLinksInApp();
   },
+  gotCacheFS: function(fileSystem) {
+	    console.log("gotCacheFS");
+	    //navigator.notification.alert('gotCacheFS');
+	    var reader = fileSystem.root.createReader();
+	    reader.readEntries(Application.gotCacheList, Application.fail);
+	  },
+	  gotCacheList: function(entries) {
+		  console.log(entries);
+		  navigator.notification.alert('entries ' + JSON.stringify(entries));
+		  /*
+		    var i;
+		    for (i=0; i<entries.length; i++) {
+		    	console.log(entries[i]);
+		    }*/
+		  },
   gotFS: function(fileSystem) {
     console.log("gotFS");
     navigator.notification.alert('gotFS');
@@ -160,6 +175,11 @@ var Application = {
 	    //$feedsList.append(htmlItems);
   },
   initAddFeedPage: function() {
+	$("#clearCacheBtn").click(function(){
+		console.log("in clearCacheBtn");
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
+		console.log("cleared cache");
+	});
     $('#add-feed-form').submit(function(event) {
       event.preventDefault();
       var feedName = $('#feed-name').val().trim();
@@ -398,9 +418,6 @@ var Application = {
     var $buttons = $('a[data-icon], button[data-icon]');
     var isMobileWidth = ($(window).width() <= 480);
     isMobileWidth ? $buttons.attr('data-iconpos', 'notext') : $buttons.removeAttr('data-iconpos');
-  },
-  mypagechange: function() {
-	console.log("in mypagechange");
   },
   openLinksInApp: function() {
     $(document).on('click', 'a[target=_blank]', function(event) {
