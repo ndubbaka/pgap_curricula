@@ -1,4 +1,5 @@
 var Application = {
+  var fileSystem, folderList, basePath = 'root';
   initApplication: function() {
     console.log("initApplication");
     /*$("#browseBtn").click(function(){
@@ -57,13 +58,16 @@ var Application = {
   buildFolders: function(fs) {
 //Get directory tree and set root callback function
       fileSystem = fs;
+      navigator.notification.alert('in buildFolders: ' + JSON.stringify(fileSystem));
       getFolder(basePath, function(folder) {
+    	  navigator.notification.alert('in getFolder(basePath): ' + basePath);
           folderList = folder;
           // Do stuff with completed folderList
           navigator.notification.alert('folderList: ' + JSON.stringify(folderList));
       });
   },
   getFolder: function(path, callback) {
+	  navigator.notification.alert('in getFolder: ' + path);
 	  // Recursively scan a directory structure from a base path
       fileSystem.root.getDirectory(path, {create: false}, function(dir) {
           var directoryReader = dir.createReader();
