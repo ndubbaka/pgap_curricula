@@ -54,30 +54,87 @@ var Application = {
       });
     Application.openLinksInApp();
   },
+  buildFolders: function(fs) {
+//Get directory tree and set root callback function
+      fileSystem = fs;
+      getFolder(basePath, function(folder) {
+          folderList = folder;
+          // Do stuff with completed folderList
+          navigator.notification.alert('folderList: ' + JSON.stringify(folderList));
+      });
+  },
+  getFolder: function(path, callback) {
+	  // Recursively scan a directory structure from a base path
+      fileSystem.root.getDirectory(path, {create: false}, function(dir) {
+          var directoryReader = dir.createReader();
+          directoryReader.readEntries(function(entries) {
+              var entryList, i;
+              if (entries.length > 0) {
+                  // Sort entries case-insensitive, alphabetically
+                  entries.sort(function(a, b) {
+                      var aName = a.name.toLowerCase(), bName = b.name.toLowerCase();
+                      return aName < bName ? -1 : bName < aName ? 1 : 0;
+                  });
+                  // Base entryList definition
+                  entryList = {
+                      name: dir.name,
+                      id: dir.name.replace(/ /g, ''),
+                      files: [],
+                      folders: [],
+                      root: false
+                  };
+                  if (dir.name === basePath) {
+                      entryList.root = true;
+                  }
+                  // Process entries for current folder
+                  for (i in entries) {
+                      if (!entries[i].isFile) {
+                          // Get child folder and have the callback function append it to it's parent entryList from the previous call to getFolder
+                          getFolder(entries[i].fullPath.replace(fileSystem.root.fullPath + '/', ''),
+                              function(folder) {
+                                  entryList.folders.push(folder);
+                              });
+                      } else {
+                          // Add file to entryList
+                          entries[i].file(function(fileObj) {
+                              entryList.files.push({
+                                  fullName: fileObj.name,
+                                  fullPath: fileObj.fullPath,
+                                  size: Math.round(fileObj.size / 1024)
+                              });
+                          }, function (error) { console.error('Failed to read file: ' + error.code); });
+                      }
+                  }
+                  // For loop complete, send the current entryList to the callback function
+                  callback(entryList);
+              } else { console.log('Folder "' + dir.name + '" was empty, skipping.'); }
+          }, function (error) { console.error('Failed to read directory entries: ' + error.code); });
+      }, function (error) { console.error('Failed to get directory ' + path + ': ' + error.code); });
+  },
   gotCacheFS: function(fileSystem) {
-	    console.log("gotCacheFS");
-	    //navigator.notification.alert('gotCacheFS');
-	    var reader = fileSystem.root.createReader();
-	    reader.readEntries(Application.gotCacheList, Application.fail);
-	  },
-	  gotCacheList: function(entries) {
-		  console.log(entries);
-		  //navigator.notification.alert('entries ' + JSON.stringify(entries));
-		  
-		    var i;
-		    for (i=0; i<entries.length; i++) {
-		    	// Get only directories entries[i].isDirectory = true
-		    	if(entries[i].isDirectory == true){
-		    		navigator.notification.alert('name: ' + entries[i].name + ' fullPath: ' + entries[i].fullPath);
-		    		// Get a directory reader
-		    		var directoryReader = entries[i].createReader();
-		    		navigator.notification.alert('directoryReader ' + JSON.stringify(directoryReader));
-		    		// Get a list of all the entries in the directory
-		    		directoryReader.readEntries(Application.gotCacheList, Application.fail);
-		    	}
-		    	console.log(entries[i]);
-		    }
-		  },
+    console.log("gotCacheFS");
+    //navigator.notification.alert('gotCacheFS');
+    var reader = fileSystem.root.createReader();
+    reader.readEntries(Application.gotCacheList, Application.fail);
+  },
+  gotCacheList: function(entries) {
+	  console.log(entries);
+	  //navigator.notification.alert('entries ' + JSON.stringify(entries));
+  
+    var i;
+    for (i=0; i<entries.length; i++) {
+    	// Get only directories entries[i].isDirectory = true
+    	if(entries[i].isDirectory == true){
+    		navigator.notification.alert('name: ' + entries[i].name + ' fullPath: ' + entries[i].fullPath);
+    		// Get a directory reader
+    		var directoryReader = entries[i].createReader();
+    		//navigator.notification.alert('directoryReader ' + JSON.stringify(directoryReader));
+    		// Get a list of all the entries in the directory
+    		directoryReader.readEntries(Application.gotCacheList, Application.fail);
+    	}
+    	console.log(entries[i]);
+    }
+  },
   gotFS: function(fileSystem) {
     console.log("gotFS");
     navigator.notification.alert('gotFS');
@@ -186,7 +243,8 @@ var Application = {
   initAddFeedPage: function() {
 	$("#clearCacheBtn").click(function(){
 		console.log("in clearCacheBtn");
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.buildFolders, Application.fail);
+		//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
 		//window.requestFileSystem(cordova.file.externalDataDirectory, 0, Application.gotCacheFS, Application.fail);
 		console.log("cleared cache");
 	});
