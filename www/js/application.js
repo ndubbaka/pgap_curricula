@@ -1,5 +1,4 @@
 var Application = {
-  var fileSystem, folderList, basePath = 'root';
   initApplication: function() {
     console.log("initApplication");
     /*$("#browseBtn").click(function(){
@@ -56,6 +55,7 @@ var Application = {
     Application.openLinksInApp();
   },
   buildFolders: function(fs) {
+	  var fileSystem, folderList, basePath = 'dir1';
 //Get directory tree and set root callback function
       fileSystem = fs;
       navigator.notification.alert('in buildFolders: ' + JSON.stringify(fileSystem));
@@ -67,6 +67,7 @@ var Application = {
       });
   },
   getFolder: function(path, callback) {
+	  var basePath = 'root';
 	  navigator.notification.alert('in getFolder: ' + path);
 	  // Recursively scan a directory structure from a base path
       fileSystem.root.getDirectory(path, {create: false}, function(dir) {
@@ -245,8 +246,10 @@ var Application = {
 	    //$feedsList.append(htmlItems);
   },
   initAddFeedPage: function() {
+	  console.log("in initAddFeedPage");
 	$("#clearCacheBtn").click(function(){
 		console.log("in clearCacheBtn");
+		// https://gist.github.com/chuckak/5722350
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.buildFolders, Application.fail);
 		//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
 		//window.requestFileSystem(cordova.file.externalDataDirectory, 0, Application.gotCacheFS, Application.fail);
