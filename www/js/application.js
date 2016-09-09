@@ -1,3 +1,5 @@
+var fileSystem, folderList, basePath = '';
+
 var Application = {
   initApplication: function() {
     console.log("initApplication");
@@ -55,24 +57,25 @@ var Application = {
     Application.openLinksInApp();
   },
   buildFolders: function(fs) {
-	  var fileSystem, folderList, basePath = 'dir1';
-//Get directory tree and set root callback function
+	  //Get directory tree and set root callback function
       fileSystem = fs;
-      navigator.notification.alert('in buildFolders: ' + JSON.stringify(fileSystem));
-      getFolder(basePath, function(folder) {
-    	  navigator.notification.alert('in getFolder(basePath): ' + basePath);
+      //navigator.notification.alert('in buildFolders: ' + JSON.stringify(fileSystem));
+      Application.getFolder(basePath, function(folder) {
+    	  //navigator.notification.alert('in getFolder(basePath): ' + basePath);
           folderList = folder;
           // Do stuff with completed folderList
-          navigator.notification.alert('folderList: ' + JSON.stringify(folderList));
+          console.log("entry folderList " + JSON.stringify(folderList));
       });
   },
   getFolder: function(path, callback) {
-	  var basePath = 'root';
-	  navigator.notification.alert('in getFolder: ' + path);
+	  console.log('in getFolder: ' + path);
+	  //navigator.notification.alert('after basePath: ' + basePath);
 	  // Recursively scan a directory structure from a base path
       fileSystem.root.getDirectory(path, {create: false}, function(dir) {
           var directoryReader = dir.createReader();
+          //navigator.notification.alert('in getFolder directoryReader: ' + JSON.stringify(directoryReader));
           directoryReader.readEntries(function(entries) {
+        	  console.log("entries " + JSON.stringify(entries));
               var entryList, i;
               if (entries.length > 0) {
                   // Sort entries case-insensitive, alphabetically
@@ -88,6 +91,7 @@ var Application = {
                       folders: [],
                       root: false
                   };
+                  console.log("entryList " + JSON.stringify(entryList));
                   if (dir.name === basePath) {
                       entryList.root = true;
                   }
@@ -95,7 +99,7 @@ var Application = {
                   for (i in entries) {
                       if (!entries[i].isFile) {
                           // Get child folder and have the callback function append it to it's parent entryList from the previous call to getFolder
-                          getFolder(entries[i].fullPath.replace(fileSystem.root.fullPath + '/', ''),
+                    	  Application.getFolder(entries[i].fullPath.replace(fileSystem.root.fullPath + '/', ''),
                               function(folder) {
                                   entryList.folders.push(folder);
                               });
@@ -110,6 +114,7 @@ var Application = {
                           }, function (error) { console.error('Failed to read file: ' + error.code); });
                       }
                   }
+                  console.log("entryList " + JSON.stringify(entryList));
                   // For loop complete, send the current entryList to the callback function
                   callback(entryList);
               } else { console.log('Folder "' + dir.name + '" was empty, skipping.'); }
@@ -249,8 +254,64 @@ var Application = {
 	  console.log("in initAddFeedPage");
 	$("#clearCacheBtn").click(function(){
 		console.log("in clearCacheBtn");
+		// http://stackoverflow.com/questions/29678186/how-to-get-documents-in-an-android-directory-that-phonegap-will-see/29905718#29905718
+		var localURLs    = [
+		                    cordova.file.dataDirectory,
+		                    cordova.file.documentsDirectory,
+		                    cordova.file.externalApplicationStorageDirectory,
+		                    cordova.file.externalCacheDirectory,
+		                    cordova.file.externalRootDirectory,
+		                    cordova.file.externalDataDirectory,
+		                    cordova.file.sharedDirectory,
+		                    cordova.file.syncedDataDirectory
+		                ];
+		var index = 0;
+		var i;
+		var statusStr = "";
+		var addFileEntry = function (entry) {
+			console.log("nik- in addFileEntry");
+		    var dirReader = entry.createReader();
+		    dirReader.readEntries(
+		        function (entries) {
+		        	console.log("nik- entries: "+ JSON.stringify(entries))
+		            var fileStr = "";
+		            var i;
+		            for (i = 0; i < entries.length; i++) {
+		                if (entries[i].isDirectory === true) {
+		                    // Recursive -- call back into this subdirectory
+		                    addFileEntry(entries[i]);
+		                } else {
+		                   fileStr += (entries[i].fullPath + "<br>"); // << replace with something useful
+		                   index++;
+		                }
+		            }
+		            // add this directory's contents to the status
+		            statusStr += fileStr;
+		            console.log("nik- statusStr" + statusStr);
+		            // display the file list in #results
+		            if (statusStr.length > 0) {
+		                $("#results").html(statusStr);
+		            } 
+		        },
+		        function (error) {
+		            console.log("readEntries error: " + error.code);
+		            statusStr += "<p>readEntries error: " + error.code + "</p>";
+		        }
+		    );
+		};
+		var addError = function (error) {
+		    console.log("getDirectory error: " + error.code);
+		    statusStr += "<p>getDirectory error: " + error.code + ", " + error.message + "</p>";
+		};
+		for (i = 0; i < localURLs.length; i++) {
+		    if (localURLs[i] === null || localURLs[i].length === 0) {
+		        continue; // skip blank / non-existent paths for this platform
+		    }
+		    console.log("nik-" + localURLs[i]);
+		    window.resolveLocalFileSystemURL(localURLs[i], addFileEntry, addError);
+		}
 		// https://gist.github.com/chuckak/5722350
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.buildFolders, Application.fail);
+		//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.buildFolders, Application.fail);
 		//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, Application.gotCacheFS, Application.fail);
 		//window.requestFileSystem(cordova.file.externalDataDirectory, 0, Application.gotCacheFS, Application.fail);
 		console.log("cleared cache");
